@@ -1,11 +1,10 @@
 import os
-
-import streamlit as st
-from nltk.tokenize import sent_tokenize
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 from typing import List
 
+import streamlit as st
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from nltk.tokenize import sent_tokenize
 
 COLOUR_MAP = {
     "Goal": "#F57C00",  # dark orange
@@ -21,6 +20,7 @@ COLOUR_MAP = {
 
 @st.cache_resource
 def load_model(provider_choice: str, model_choice: str, _api_key: str):
+    """Load a model from the chosen provider with LangChain and cache it."""
     if provider_choice == "OpenAI":
         from langchain.chat_models import ChatOpenAI
 
@@ -38,27 +38,29 @@ def load_model(provider_choice: str, model_choice: str, _api_key: str):
 def run_chain(
     provider_choice: str, model_choice: str, _api_key: str, input_sentences: List[str]
 ):
+    """Run the chain to produce the discourse tags for the input sentences and cache the output."""
     llm = load_model(
         provider_choice=provider_choice, model_choice=model_choice, _api_key=_api_key
     )
+    # Example from: https://api.semanticscholar.org/CorpusID:53295129
     prompt = PromptTemplate(
         input_variables=["input_sentences"],
         template="""You are a scientific discourse tagging bot. You will be given one or more consecutive sentences from a scientific paper and should classify each into one of the following types:
 
-Type,Description
-Goal,Research goal
-Fact,A known fact, a statement taken to be true by the author
-Result,The outcome of an experiment
-Hypothesis,A claim proposed by the author
-Method,Experimental method
-Problem,An unresolved or contradictory issue
-Implication,An interpretation of the results
+Discourse segment type,Definition,Example
+Goal,Research goal,"To examine the role of endogenous TGF-β signaling in restraining cell transformation"
+Fact,A known fact, a statement taken to be true by the author,"Sustained proliferation of cells in the presence of oncogenic signals is a major leap toward tumorigenicity"
+Result,The outcome of an experiment,"Two largely overlapping constructs encoded both miRNA-371 and 372 (miR-Vec-371&2)"
+Hypothesis,A claim proposed by the author,"These miRNAs could act on a factor upstream of p53 as a cellular suppressor to oncogenic RAS"
+Method,Experimental method,"We examined p53 mutations in exons five to eight in the primary tumors"
+Problem,An unresolved or contradictory issue,"The mechanism underlying this effect and its conservation to other tissues is not known"
+Implication,An interpretation of the results,"[This indicates that] miR-372/3 acts as a molecular switch"
 
 Your answer should be a comma-separated list of types (and nothing else) for each given input sentence. E.g. for a five-sentence input, you might output: "Goal, Fact, Result, None, Implication". Types MUST come from the list above. If you can't identify a suitable type, use "None". 
 
 {input_sentences}
 
-Output:""",
+Discourse segment types:""",
     )
     chain = LLMChain(llm=llm, prompt=prompt)
     output = chain.run(input_sentences=input_sentences)
@@ -66,6 +68,28 @@ Output:""",
 
 
 def main():
+    # Sidebar
+    with st.sidebar:
+        st.header("Model settings")
+        provider_choice = st.selectbox(
+            "Choose an API:",
+            ["OpenAI", "Cohere"],
+            index=0,
+            help="Choose a model provider. At the time of writing, OpenAI models perform the best at this task."
+            "",
+        )
+        model_choice = st.text_input(
+            "Choose a model:",
+            value="gpt-3.5-turbo"
+            if provider_choice == "OpenAI"
+            else "command-xlarge-nightly",
+            help="Any valid model name for the chosen API. Reasonable defaults are used.",
+        )
+        api_key = st.text_input(
+            "Enter your API Key:", help="Your key for the chosen API."
+        )
+
+    # First section
     st.title("Scientific Discourse Tagging 🔬 💬 🏷️")
     st.subheader(
         "An experiment in scientific discourse tagging using few-shot in-context learning (ICL)"
@@ -80,8 +104,8 @@ def main():
         """
     )
 
+    # Second section
     st.subheader("How to use this demo ❓")
-
     st.write(
         """
         Enter a sentence or paragraph of text from a scientific paper (or choose one of the examples). Each sentence will be classified as one of the following types:
@@ -93,33 +117,15 @@ def main():
 - __Method__: Experimental method
 - __Problem__: An unresolved or contradictory issue
 - __Implication__: An interpretation of the results
+- __None__: Anything else 
 
 """
     )
     st.caption(
-        "Discourse tags come from ([de Waard & Pander Maat, 2012](https://aclanthology.org/W12-4306/))"
+        "Discourse tags come from ([de Waard & Pander Maat, 2012](https://aclanthology.org/W12-4306/))."
     )
 
-    with st.sidebar:
-        st.header("Settings")
-        provider_choice = st.selectbox(
-            "Choose a model:",
-            ["OpenAI", "Cohere"],
-            index=0,
-            help="Choose a model provider. At the time of writing, OpenAI models perform the best at this task."
-            "",
-        )
-        model_choice = st.text_input(
-            "Model name:",
-            value="gpt-3.5-turbo"
-            if provider_choice == "OpenAI"
-            else "command-xlarge-nightly",
-            help="Any valid model name for the chosen provider. Reasonable defaults are used.",
-        )
-        api_key = st.text_input(
-            "Enter your API Key:", help="Your API key for the chosen provider."
-        )
-
+    # Third section
     if api_key:
         input_text = st.text_area(
             "Enter some text here",
@@ -140,6 +146,9 @@ def main():
             example_physics = st.button("Example 3 (Physics)")
         with col4:
             example_chemistry = st.button("Example 4 (Chemistry)")
+        st.caption(
+            "At the time of writing, all examples are from scientific papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021."
+        )
 
         if example_biomedical:
             input_text = "For unknown reasons, the melanocyte stem cell (McSC) system fails earlier than other adult stem cell populations1, which leads to hair greying in most humans and mice2,3. Current dogma states that McSCs are reserved in an undifferentiated state in the hair follicle niche, physically segregated from differentiated progeny that migrate away following cues of regenerative stimuli4-8. Here we show that most McSCs toggle between transit-amplifying and stem cell states for both self-renewal and generation of mature progeny, a mechanism fundamentally distinct from those of other self-renewing systems. Live imaging and single-cell RNA sequencing revealed that McSCs are mobile, translocating between hair follicle stem cell and transit-amplifying compartments where they reversibly enter distinct differentiation states governed by local microenvironmental cues (for example, WNT). Long-term lineage tracing demonstrated that the McSC system is maintained by reverted McSCs rather than by reserved stem cells inherently exempt from reversible changes. During ageing, there is accumulation of stranded McSCs that do not contribute to the regeneration of melanocyte progeny. These results identify a new model whereby dedifferentiation is integral to homeostatic stem cell maintenance and suggest that modulating McSC mobility may represent a new approach for the prevention of hair greying."
@@ -176,14 +185,15 @@ def main():
             )
             tags = [tag.strip() for tag in output.strip().split(",")]
 
-            formatted_text = ""
+            formatted_text = '<div style="background-color:#F9F9F9;border-radius:10px;padding:15px;">'
             for i, sent in enumerate(sentences):
                 tag = tags[i]
                 colour = COLOUR_MAP.get(tag, "None")
                 formatted_text += f'<div style="color: {colour};">{sent.strip()} <strong>[{tag.upper()}]</strong></div>'
+            formatted_text += "</div>"
 
             # Use st.markdown to render the HTML and CSS
-            st.write("##### Model output")
+            st.write("##### Model output 🤖")
             st.markdown(formatted_text, unsafe_allow_html=True)
     else:
         input_text = st.text_area("Enter your text here", value="", disabled=True)
@@ -191,6 +201,7 @@ def main():
             "Please enter your API key in the sidebar to enable the input text box and examples."
         )
 
+    # Fourth section
     "---"
     st.subheader("Observations 🧐")
     st.write(
@@ -198,12 +209,13 @@ def main():
         - OpenAI models currently perform the best. I was not able to solve the task at all with Cohere models.
         - `gpt.3.5-turbo` performs reasonably well, I did not try `gpt-4` but assume it would perform better.
         - The model appears to perform better on longer texts. Performance on short texts is not great.
-        - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but not as well for computer science.
+        - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but slightly worse for computer science.
         - All examples are scientific papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021.
         - I am simply using NLTK for sentence tokenization, which is likely not optimal. Some sentences clearly belong to multiple tags.
         """
     )
 
+    # Fith section
     st.subheader("Feedback 📝")
     st.write(
         "Feel free to leave an issue or open a pull request on [GitHub](https://github.com/JohnGiorgi/SciTagger)!"
