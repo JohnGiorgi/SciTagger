@@ -8,13 +8,13 @@ See the demo for more details [![Open in Streamlit](https://static.streamlit.io/
 
 To run locally, you can either install from GitHub
 
-```
+```bash
 pip install git+https://github.com/JohnGiorgi/SciTagger.git
 ```
 
 or clone the repo and install from source using [Poetry](https://python-poetry.org/)
 
-```
+```bash
 git clone https://github.com/JohnGiorgi/SciTagger.git
 cd SciTagger
 poetry install
@@ -22,6 +22,6 @@ poetry install
 
 Then run the demo
 
-```
+```bash
 poetry run streamlit run app.py
 ```
