@@ -17,30 +17,48 @@ COLOUR_MAP = {
     "None": "#BDBDBD",  # medium grey
 }
 
+MAX_OUTPUT_TOKENS = 32
+
 
 @st.cache_resource
-def load_model(provider_choice: str, model_choice: str, _api_key: str):
+def load_model(
+    provider_choice: str, model_choice: str, _api_key: str, temperature: float = 0.0
+):
     """Load a model from the chosen provider with LangChain and cache it."""
     if provider_choice == "OpenAI":
         from langchain.chat_models import ChatOpenAI
 
         os.environ["OPENAI_API_KEY"] = _api_key
-        llm = ChatOpenAI(model=model_choice, temperature=0.0, max_tokens=32)
+        llm = ChatOpenAI(
+            model=model_choice, temperature=temperature, max_tokens=MAX_OUTPUT_TOKENS
+        )
     else:
         from langchain.llms import Cohere
 
-        llm = Cohere(model=model_choice, cohere_api_key=_api_key, temperature=0.0)
+        llm = Cohere(
+            model=model_choice,
+            cohere_api_key=_api_key,
+            temperature=temperature,
+            max_tokens=MAX_OUTPUT_TOKENS,
+        )
 
     return llm
 
 
 @st.cache_data
 def run_chain(
-    provider_choice: str, model_choice: str, _api_key: str, input_sentences: List[str]
+    provider_choice: str,
+    model_choice: str,
+    _api_key: str,
+    input_sentences: List[str],
+    temperature: float = 0.0,
 ):
     """Run the chain to produce the discourse tags for the input sentences and cache the output."""
     llm = load_model(
-        provider_choice=provider_choice, model_choice=model_choice, _api_key=_api_key
+        provider_choice=provider_choice,
+        model_choice=model_choice,
+        _api_key=_api_key,
+        temperature=temperature,
     )
     # Example from: https://api.semanticscholar.org/CorpusID:53295129
     prompt = PromptTemplate(
@@ -88,6 +106,14 @@ def main():
         api_key = st.text_input(
             "Enter your API Key:", help="Your key for the chosen API."
         )
+        temperature = st.slider(
+            "Temperature",
+            min_value=0.0,
+            max_value=2.0,
+            value=0.0,
+            step=0.01,
+            help="What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+        )
 
     # First section
     st.title("Scientific Discourse Tagging 🔬 💬 🏷️")
@@ -98,7 +124,7 @@ def main():
         """
         Scientific discourse tagging involves labelling clauses or sentences in a scientific paper with distinct rhetorical elements.
         This task is valuable for [scholarly document processing (SDP)](https://ornlcda.github.io/SDProc/) as it enables us (for example) to automatically distinguish
-        between _observations_ made in experiments and their _implications_, as well as to differentiate between _claims_ backed by
+        between _observations_ made from experiments and their _implications_, as well as to differentiate between _claims_ backed by
         evidence and _hypotheses_ proposed to prompt further research ([Xiangci Li, Gully Burns, and Nanyun Peng, 2021](https://aclanthology.org/2021.eacl-main.218/)).
         This demo is an experiment in scientific discourse tagging using few-shot in-context learning (ICL).
         """
@@ -182,6 +208,7 @@ def main():
                 model_choice,
                 _api_key=api_key,
                 input_sentences=input_sentences,
+                temperature=temperature,
             )
             tags = [tag.strip() for tag in output.strip().split(",")]
 
@@ -211,7 +238,7 @@ def main():
         - The model appears to perform better on longer texts. Performance on short texts is not great.
         - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but slightly worse for computer science.
         - All examples are scientific papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021.
-        - I am simply using NLTK for sentence tokenization, which is likely not optimal. Some sentences clearly belong to multiple tags.
+        - I am simply using NLTK for sentence tokenization, which is likely not optimal. Some sentences clearly belong to multiple tags, which would require sub sentence tokenization.
         """
     )
 
