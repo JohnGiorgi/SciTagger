@@ -10,6 +10,7 @@ To run locally, you can either install from GitHub
 
 ```bash
 pip install git+https://github.com/JohnGiorgi/SciTagger.git
+pip install streamlit
 ```
 
 or clone the repo and install from source using [Poetry](https://python-poetry.org/)
