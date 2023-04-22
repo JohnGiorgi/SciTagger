@@ -8,14 +8,14 @@ from typing import List
 
 
 COLOUR_MAP = {
-    "Goal": "#FFB347",  # orange
-    "Fact": "#77DD77",  # pastel green
-    "Result": "#5DA5DA",  # blue
-    "Hypothesis": "#AEC6CF",  # light blue/grey
-    "Method": "#FDB813",  # yellow
-    "Problem": "#E76BF3",  # purple
-    "Implication": "#FF9896",  # salmon/red
-    "None": "#C2C2C2",  # light grey
+    "Goal": "#F57C00",  # dark orange
+    "Fact": "#4CAF50",  # medium green
+    "Result": "#2196F3",  # blue
+    "Hypothesis": "#9FA8DA",  # desaturated blue
+    "Method": "#FFC107",  # amber
+    "Problem": "#AB47BC",  # violet
+    "Implication": "#EF5350",  # red
+    "None": "#BDBDBD",  # medium grey
 }
 
 
@@ -158,7 +158,9 @@ def main():
             )
         elif example_chemistry:
             input_text = "Given the increasing consumer demand for raw, nonprocessed, safe, and long shelf-life fish and seafood products, research concerning the application of natural antimicrobials as alternatives to preservatives is of great interest. The aim of the following paper was to evaluate the effect of essential oils (EOs) from black pepper (BPEO) and tarragon (TEO), and their bioactive compounds: limonene (LIM), β-caryophyllene (CAR), methyl eugenol (ME), and β-phellandrene (PHE) on the lipolytic activity and type II secretion system (T2SS) of Pseudomonas psychrophila KM02 (KM02) fish isolates grown in vitro and in fish model conditions. Spectrophotometric analysis with the p-NPP reagent showed inhibition of lipolysis from 11 to 46%. These results were confirmed by RT-qPCR, as the expression levels of lipA, lipB, and genes encoding T2SS were also considerably decreased. The supplementation of marinade with BPEO and TEO contributed to KM02 growth inhibition during vacuum packaging of salmon fillets relative to control samples. Whole-genome sequencing (WGS) provided insight into the spoilage potential of KM02, proving its importance as a spoilage microorganism whose metabolic activity should be inhibited to maintain the quality and safety of fresh fish in the food market."
-            st.write("#### Example 4: [Black pepper and tarragon essential oils suppress the lipolytic potential and the type II secretion system of P. psychrophila KM02](https://www.nature.com/articles/s41598-022-09311-9)")
+            st.write(
+                "##### Example 4: [Black pepper and tarragon essential oils suppress the lipolytic potential and the type II secretion system of P. psychrophila KM02](https://www.nature.com/articles/s41598-022-09311-9)"
+            )
 
         if input_text.strip():
             sentences = sent_tokenize(input_text)
@@ -189,14 +191,16 @@ def main():
             "Please enter your API key in the sidebar to enable the input text box and examples."
         )
 
+    "---"
     st.subheader("Observations 🧐")
     st.write(
         """
         - OpenAI models currently perform the best. I was not able to solve the task at all with Cohere models.
         - `gpt.3.5-turbo` performs reasonably well, I did not try `gpt-4` but assume it would perform better.
         - The model appears to perform better on longer texts. Performance on short texts is not great.
-        - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but not as well for the computer science.
-        - All examples were published after GPT-3/3.5/4's data cutoff date of September 2021
+        - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but not as well for computer science.
+        - All examples are scientific papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021.
+        - I am simply using NLTK for sentence tokenization, which is likely not optimal. Some sentences clearly belong to multiple tags.
         """
     )
 
