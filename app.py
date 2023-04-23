@@ -200,15 +200,35 @@ def main():
             # Three horizontal buttons
             col1, col2, col3, col4 = st.columns(4)
             with col1:
-                example_biomedical = st.button("Example 1 (Biomedical)")
+                example_biomedical = st.button(
+                    "Example 1 (Biomedical)",
+                    help="Click to load the example",
+                    type="primary",
+                    use_container_width=True,
+                )
             with col2:
-                example_compsci = st.button("Example 2 (CompSci)")
+                example_compsci = st.button(
+                    "Example 2 (CompSci)",
+                    help="Click to load the example",
+                    type="primary",
+                    use_container_width=True,
+                )
             with col3:
-                example_physics = st.button("Example 3 (Physics)")
+                example_physics = st.button(
+                    "Example 3 (Physics)",
+                    help="Click to load the example",
+                    type="primary",
+                    use_container_width=True,
+                )
             with col4:
-                example_chemistry = st.button("Example 4 (Chemistry)")
+                example_chemistry = st.button(
+                    "Example 4 (Chemistry)",
+                    help="Click to load the example",
+                    type="primary",
+                    use_container_width=True,
+                )
             st.caption(
-                "At the time of writing, all examples are from scientific papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021."
+                "At the time of writing, examples are from papers published _after_ GPT-3/3.5/4's data cutoff date of September 2021."
             )
 
             if example_biomedical:
@@ -268,6 +288,7 @@ def main():
             )
 
     # Fourth section
+    "---"
     st.subheader("Feedback 📝")
     st.write(
         "Feel free to leave an issue or open a pull request on [GitHub](https://github.com/JohnGiorgi/SciTagger)!"
