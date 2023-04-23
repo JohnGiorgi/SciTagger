@@ -283,11 +283,15 @@ def main():
     else:
         with text_tab:
             st.warning(
-                "Please enter your API key in the sidebar to enable the input text box and examples."
+                "Please enter your API key in the sidebar to enable the input text box."
+            )
+        with s2_tab:
+            st.warning(
+                "Please enter your API key in the sidebar to enable searching with S2."
             )
         with examples_tab:
             st.warning(
-                "Please enter your API key in the sidebar to enable the input text box and examples."
+                "Please enter your API key in the sidebar to enable the examples."
             )
 
     # Fourth section
