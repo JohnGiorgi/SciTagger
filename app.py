@@ -20,6 +20,14 @@ COLOUR_MAP = {
 
 MAX_OUTPUT_TOKENS = 32
 
+# Check if the NLTK punkt tokenizer is downloaded, and if not, download it
+try:
+    import nltk
+
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
+
 
 @st.cache_resource
 def load_model(
