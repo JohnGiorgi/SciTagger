@@ -123,10 +123,11 @@ def main():
     )
     st.write(
         """
-        Scientific discourse tagging involves labelling clauses or sentences in a scientific paper with distinct rhetorical elements.
+        __Scientific discourse tagging__ involves labelling clauses or sentences in a scientific paper with distinct rhetorical elements.
         This task is valuable for [scholarly document processing (SDP)](https://ornlcda.github.io/SDProc/) as it enables us (for example) to automatically distinguish
         between _observations_ made from experiments and their _implications_, as well as to differentiate between _claims_ backed by
         evidence and _hypotheses_ proposed to prompt further research ([Xiangci Li, Gully Burns, and Nanyun Peng, 2021](https://aclanthology.org/2021.eacl-main.218/)).
+        
         This demo is an experiment in scientific discourse tagging using few-shot in-context learning (ICL).
         """
     )
@@ -134,10 +135,12 @@ def main():
     with st.expander("Observations 🧐"):
         st.write(
             """
-            - OpenAI models currently perform the best. I was not able to solve the task at all with Cohere models.
-            - `gpt.3.5-turbo` performs reasonably well, I did not try `gpt-4` but assume it would perform better.
-            - The model appears to perform better on longer texts. Performance on short texts is not great.
-            - The model appears to perform the best for biomedical texts. It also performs well for the natural sciences (e.g. physics), but slightly worse for computer science.
+            - OpenAI models currently perform the best. Cohere models perform poorly and sometimes output invalid predictions.
+            - `gpt.3.5-turbo` performs reasonably well. I did not try `gpt-4` but assume it would perform better.
+            - __The model appears to perform better on longer texts__. Performance on short texts is not great.
+            - __The model appears to perform better on abstracts than on other sections of a paper__. This is likely because abstracts follow a more rigid structure.
+            - __The model appears to perform the best for biomedical texts__. It also performs well for the natural sciences (e.g. physics), but slightly worse for computer science.
+            - __Low temperatures (i.e. close to `0.0`) perform the best__. Higher temperatures increase the odds of the model outputting invalid predictions.
             - I am simply using NLTK for sentence tokenization, which is likely not optimal. Some sentences clearly belong to multiple tags, which would require sub sentence tokenization.
             """
         )
