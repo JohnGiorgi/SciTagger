@@ -29,6 +29,17 @@ except LookupError:
     nltk.download("punkt")
 
 
+@st.cache_data
+def query_s2(ids: List[str]):
+    """Queries the Semantic Scholar API for the abstracts of the given paper IDs and caches the result."""
+    r = requests.post(
+        "https://api.semanticscholar.org/graph/v1/paper/batch",
+        params={"fields": "abstract"},
+        json={"ids": ids},
+    )
+    return r
+
+
 @st.cache_resource
 def load_model(
     provider_choice: str, model_choice: str, _api_key: str, temperature: float = 0.0
@@ -176,6 +187,8 @@ def main():
 
     text_tab, s2_tab, examples_tab = st.tabs(["Text", "Semantic Scholar", "Examples"])
 
+    input_text = None
+
     # Third section
     if api_key:
         with text_tab:
@@ -190,11 +203,7 @@ def main():
                 placeholder="Enter a Semantic Scholar ID, e.g. 204e3073870fae3d05bcbc2f6a8e263d9b72e776",
             )
             if s2_id:
-                r = requests.post(
-                    "https://api.semanticscholar.org/graph/v1/paper/batch",
-                    params={"fields": "abstract"},
-                    json={"ids": [s2_id]},
-                )
+                r = query_s2(ids=[s2_id])
                 if r.status_code == 200:
                     input_text = r.json()[0].get("abstract")
                     if input_text is None:
@@ -263,7 +272,7 @@ def main():
                     "##### Example 4: [Black pepper and tarragon essential oils suppress the lipolytic potential and the type II secretion system of P. psychrophila KM02](https://www.nature.com/articles/s41598-022-09311-9)"
                 )
 
-        if input_text.strip():
+        if input_text is not None and input_text.strip():
             sentences = sent_tokenize(input_text)
 
             input_sentences = f"\n\n".join(
