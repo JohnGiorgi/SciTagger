@@ -205,6 +205,8 @@ def main():
             if s2_id:
                 r = query_s2(ids=[s2_id])
                 if r.status_code == 200:
+                    if input_text:
+                        st.warning("You have already entered some text in the text tab. This will be overwritten.")
                     input_text = r.json()[0].get("abstract")
                     if input_text is None:
                         st.warning(
