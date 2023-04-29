@@ -118,13 +118,11 @@ def main():
         )
         model_choice = st.text_input(
             "Choose a model:",
-            value="gpt-3.5-turbo"
-            if provider_choice == "OpenAI"
-            else "command-xlarge-nightly",
+            value="gpt-3.5-turbo" if provider_choice == "OpenAI" else "command",
             help="Any valid model name for the chosen API. Reasonable defaults are used.",
         )
         api_key = st.text_input(
-            "Enter your API Key:", help="Your key for the chosen API."
+            "Enter your API Key:", type="password", help="Your key for the chosen API."
         )
         temperature = st.slider(
             "Temperature",
@@ -206,7 +204,9 @@ def main():
                 r = query_s2(ids=[s2_id])
                 if r.status_code == 200:
                     if input_text:
-                        st.warning("You have already entered some text in the text tab. This will be overwritten.")
+                        st.warning(
+                            "You have already entered some text in the text tab. This will be overwritten."
+                        )
                     input_text = r.json()[0].get("abstract")
                     if input_text is None:
                         st.warning(
