@@ -42,13 +42,13 @@ def query_s2(ids: List[str]):
 
 @st.cache_resource
 def load_model(
-    provider_choice: str, model_choice: str, _api_key: str, temperature: float = 0.0
+    provider_choice: str, model_choice: str, api_key: str, temperature: float = 0.0
 ):
     """Load a model from the chosen provider with LangChain and cache it."""
     if provider_choice == "OpenAI":
         from langchain.chat_models import ChatOpenAI
 
-        os.environ["OPENAI_API_KEY"] = _api_key
+        os.environ["OPENAI_API_KEY"] = api_key
         llm = ChatOpenAI(
             model=model_choice, temperature=temperature, max_tokens=MAX_OUTPUT_TOKENS
         )
@@ -57,7 +57,7 @@ def load_model(
 
         llm = Cohere(
             model=model_choice,
-            cohere_api_key=_api_key,
+            cohere_api_key=api_key,
             temperature=temperature,
             max_tokens=MAX_OUTPUT_TOKENS,
         )
@@ -69,7 +69,7 @@ def load_model(
 def run_chain(
     provider_choice: str,
     model_choice: str,
-    _api_key: str,
+    api_key: str,
     input_sentences: List[str],
     temperature: float = 0.0,
 ):
@@ -77,7 +77,7 @@ def run_chain(
     llm = load_model(
         provider_choice=provider_choice,
         model_choice=model_choice,
-        _api_key=_api_key,
+        api_key=api_key,
         temperature=temperature,
     )
     # Example from: https://api.semanticscholar.org/CorpusID:53295129
@@ -283,7 +283,7 @@ def main():
             output = run_chain(
                 provider_choice,
                 model_choice,
-                _api_key=api_key,
+                api_key=api_key,
                 input_sentences=input_sentences,
                 temperature=temperature,
             )
